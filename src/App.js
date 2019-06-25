@@ -1,6 +1,11 @@
 import React, {Component} from 'react';
 import './css/App.css';
 
+const randomChoice = arr => {
+  const randIndex = Math.floor(Math.random() * arr.length)
+  return arr[randIndex]
+}
+
 const Header = () => (
   <div className="header grid">
     <h1 className="title">Jiffy</h1>
@@ -33,11 +38,14 @@ class App extends Component {
       // const {data} gets the .data part of our response
       const {data} = await response.json();
 
+      // randomize result data
+      const randomGif = randomChoice(data);
+
       // here we assign the new gif value to the state
       this.setState((prevState, props) => ({
         ...prevState,
         // get the first result and put it in the state
-        gif: data[0]
+        gif: randomGif
       }));
 
       // if we have no results in the array, we throw an error
