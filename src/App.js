@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import './App.css';
+import './css/App.css';
 
 const Header = () => (
   <div className="header grid">
@@ -7,12 +7,19 @@ const Header = () => (
   </div>
 );
 
+const UserHint = ({loading, hintText}) => (
+  <div className="user-hint">
+    {loading ? <img src={require('./images/loader.svg')} className="block mx-auto" /> : hintText}
+  </div>
+)
+
 class App extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      searchTerm: ''
+      searchTerm: '',
+      hintText: ''
     };
   }
 
@@ -23,7 +30,8 @@ class App extends Component {
       // we take old props and spread them here
       ...prevState,
       // and then we overwrite the ones we want after
-      searchTerm: value
+      searchTerm: value,
+      hintText: value.length > 2 ? `Hit enter to search ${value}` : ''
     }));
   }
 
@@ -51,6 +59,8 @@ class App extends Component {
             onKeyPress={this.handleKeyPress}
           />
         </div>
+
+        <UserHint {...this.state} />
       </div>
     );
   }
