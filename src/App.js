@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import './App.css';
 
 const Header = () => (
@@ -7,17 +7,28 @@ const Header = () => (
   </div>
 );
 
-function App() {
+class App extends Component {
 
-  handleChange = event => {
-    const value = event.target;
-    if (value.length > 2) {
-
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      searchTerm: ''
+    };
   }
 
-  const handleKeyPress = event => {
-    const value = event.target;
+  handleChange = event => {
+    const {value} = event.target;
+
+    this.setState((prevState, props) => ({
+      // we take old props and spread them here
+      ...prevState,
+      // and then we overwrite the ones we want after
+      searchTerm: value
+    }));
+  }
+
+  handleKeyPress = event => {
+    const {value} = event.target;
     // value gives us the previous updated value
     // which is why we need to use onChange
     if (event.key === 'Enter') {
@@ -25,19 +36,25 @@ function App() {
     }
   }
 
-  return (
-    <div className="page">
-      <Header />
-      <div className="search grid">
-        <input
-          className="input grid-item"
-          placeholder="Type something"
-          onChange={this.handleChange}
-          onKeyPress={this.handleKeyPress}
-        />
+  render() {
+
+    const {searchTerm} = this.state;
+
+    return (
+      <div className="page">
+        <Header />
+        <div className="search grid">
+          <input
+            className="input grid-item"
+            placeholder="Type something"
+            onChange={this.handleChange}
+            onKeyPress={this.handleKeyPress}
+          />
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+
+  }
 
 export default App;
