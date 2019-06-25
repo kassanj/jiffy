@@ -19,19 +19,27 @@ class App extends Component {
     super(props);
     this.state = {
       searchTerm: '',
-      hintText: ''
+      hintText: '',
+      gif: null
     };
   }
 
   handleGiphy = async searchTerm => {
     try {
       // use fetch with our search term embedded into the `q=term` part of the url
-      const response = await fetch(        `https://api.giphy.com/v1/gifs/search?api_key=8bq9S5rnr40uJxjAfvY5FrFRGxgEkL9x&q=${
-          searchTerm
-        }&limit=50&offset=0&rating=PG-13&lang=en`)
+      const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=8bq9S5rnr40uJxjAfvY5FrFRGxgEkL9x&q=${searchTerm}&limit=50&offset=0&rating=PG-13&lang=en`)
 
-      // this grabs the results data from our json code
-      const {data} = await response.json()
+      // here we convert our raw response into json data
+      // const {data} gets the .data part of our response
+      const {data} = await response.json();
+
+      // here we assign the new gif value to the state
+      this.setState((prevState, props) => ({
+        ...prevState,
+        // get the first result and put it in the state
+        gif: data[0]
+      }));
+
       // if we have no results in the array, we throw an error
       // the error will be sent down to the catch part
       if (!data.length) {
@@ -71,17 +79,24 @@ class App extends Component {
 
   render() {
 
-    const {searchTerm} = this.state;
+    const {searchTerm, gif} = this.state;
 
     return (
       <div className="page">
         <Header />
         <div className="search grid">
+         {gif && <video
+           className="grid-item video"
+           autoPlay
+           loop
+           src={gif.images.original.mp4}
+          />}
           <input
             className="input grid-item"
             placeholder="Type something"
             onChange={this.handleChange}
             onKeyPress={this.handleKeyPress}
+            value={searchTerm}
           />
         </div>
 
