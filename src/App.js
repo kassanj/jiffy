@@ -1,15 +1,23 @@
 import React, {Component} from 'react';
 import Gif from './Gif';
 import './css/App.css';
+import loader from './images/loader.svg';
+import clearButton from './images/close-icon.svg';
 
 const randomChoice = arr => {
   const randIndex = Math.floor(Math.random() * arr.length)
   return arr[randIndex]
 }
 
-const Header = () => (
+const Header = ({clearSearch, hasResults}) => (
   <div className="header grid">
-    <h1 className="title">Jiffy</h1>
+    {hasResults ? (
+      <button onClick={clearSearch}>
+        <img src={clearButton} />
+      </button>
+    ) : (
+      <h1 className="title">Jiffy</h1>
+    )}
   </div>
 );
 
@@ -26,12 +34,17 @@ class App extends Component {
     this.state = {
       searchTerm: '',
       hintText: '',
-      gif: null,
-      gifs: []
+      gifs: [],
+      loading: false,
     };
   }
 
   handleGiphy = async searchTerm => {
+
+    this.setState({
+      loading: true
+    });
+
     try {
       // use fetch with our search term embedded into the `q=term` part of the url
       const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=8bq9S5rnr40uJxjAfvY5FrFRGxgEkL9x&q=${searchTerm}&limit=50&offset=0&rating=PG-13&lang=en`)
@@ -40,29 +53,31 @@ class App extends Component {
       // const {data} gets the .data part of our response
       const {data} = await response.json();
 
+      // if we have no results in the array, we throw an error
+      // the error will be sent down to the catch part
+      if (!data.length) {
+        throw `Nothing found for ${searchTerm}`
+      }
+
       // randomize result data
       const randomGif = randomChoice(data);
 
       // here we assign the new gif value to the state
       this.setState((prevState, props) => ({
         ...prevState,
-        // get the first result and put it in the state
-        gif: randomGif,
         // here we use our spread to take prev gifs and spread them out, and then add our new random gif onto the end of the array
-        gifs: [...prevState.gifs, randomGif]
+        gifs: [...prevState.gifs, randomGif],
+        // we turn off loading spinner
+        loading: false,
+        hintText: `Hit enter to see more ${searchTerm}`
       }));
 
-      // if we have no results in the array, we throw an error
-      // the error will be sent down to the catch part
-      if (!data.length) {
-        throw `Nothing found for ${searchTerm}`
-      }
-      // now do something with our data
-      // return doSomething(data)
-      console.log(data)
-
     } catch (error) {
-       alert(error)
+      this.setState((prevState, props) => ({
+         ...prevState,
+         hintText: error,
+         loading: false
+       }));
     }
   }
 
@@ -89,13 +104,25 @@ class App extends Component {
     }
   }
 
+  clearSearch = () => {
+    this.setState((prevState, props) => ({
+      ...prevState,
+      searchTerm: '',
+      hintText: '',
+      gifs: []
+    }))
+    // this.input.focus()
+  }
+
   render() {
 
-    const {searchTerm, gif} = this.state;
+    const {searchTerm, gifs} = this.state;
+    const hasResults = gifs.length;
 
     return (
       <div className="page">
-        <Header />
+
+        <Header clearSearch={this.clearSearch} hasResults={hasResults} />
 
         <div className="search grid">
 
