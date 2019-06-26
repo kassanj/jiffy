@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import Gif from './Gif';
 import './css/App.css';
 
 const randomChoice = arr => {
@@ -25,7 +26,8 @@ class App extends Component {
     this.state = {
       searchTerm: '',
       hintText: '',
-      gif: null
+      gif: null,
+      gifs: []
     };
   }
 
@@ -45,7 +47,9 @@ class App extends Component {
       this.setState((prevState, props) => ({
         ...prevState,
         // get the first result and put it in the state
-        gif: randomGif
+        gif: randomGif,
+        // here we use our spread to take prev gifs and spread them out, and then add our new random gif onto the end of the array
+        gifs: [...prevState.gifs, randomGif]
       }));
 
       // if we have no results in the array, we throw an error
@@ -92,13 +96,14 @@ class App extends Component {
     return (
       <div className="page">
         <Header />
+
         <div className="search grid">
-         {gif && <video
-           className="grid-item video"
-           autoPlay
-           loop
-           src={gif.images.original.mp4}
-          />}
+
+          {this.state.gifs.map(gif => (
+            // spread out all props onto our Gif component
+            <Gif {...gif} />
+          ))}
+
           <input
             className="input grid-item"
             placeholder="Type something"
